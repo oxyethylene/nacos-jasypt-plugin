@@ -1,0 +1,44 @@
+services:
+  nacos:
+    image: nacos/nacos-server:v2.4.1
+    container_name: nacos
+    environment:
+      - NACOS_DEBUG=y
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=mysql
+      - MYSQL_SERVICE_DB_NAME=nacos_devtest
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_USER=nacos
+      - MYSQL_SERVICE_PASSWORD=ENC(41EzKqYwqeiJPmnD+MSxuw==)
+      - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      - NACOS_AUTH_IDENTITY_KEY=2222
+      - NACOS_AUTH_IDENTITY_VALUE=2xxx
+      - NACOS_AUTH_TOKEN=SecretKey012345678901234567890123456789012345678901234567890123456789
+    volumes:
+      - ./target/nacos-jasypt-plugin-1.0-SNAPSHOT.jar:/home/nacos/plugins/nacos-jasypt-plugin.jar
+      - ./application.properties:/home/nacos/conf/application.properties
+    depends_on:
+      mysql:
+        condition: service_healthy
+  mysql:
+    container_name: mysql
+    image: mysql:8.0.31
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=nacos_devtest
+      - MYSQL_USER=nacos
+      - MYSQL_PASSWORD=nacos
+      - LANG=C.UTF-8
+    volumes:
+      - ./init-mysql/mysql-schema.sql:/docker-entrypoint-initdb.d/nacos-mysql.sql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 10
