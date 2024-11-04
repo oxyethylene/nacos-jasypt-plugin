@@ -9,7 +9,7 @@
 3. 修改nacos的conf/application.properties文件，增加如下配置
 
 ```properties
-nacos.db.encrypt.enabled=true
+nacos.custom.environment.enabled=true
 jasypt.encryptor.password=password
 jasypt.encryptor.algorithm=PBEWithMD5AndDES
 jasypt.encryptor.iv-generator-classname=org.jasypt.iv.NoIvGenerator
